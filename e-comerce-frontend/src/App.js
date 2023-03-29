@@ -16,6 +16,7 @@ import SignIn from './screens/SignIn';
 import { useDispatch } from 'react-redux';
 import { fetchCart } from './redux/actions/cartActions';
 import { setUserDeatils } from './redux/actions/userAction';
+import PaymentScreen from './screens/PaymentScreen';
 
 function App() {
   const [sideToggle, setSideToggle] = useState(false);
@@ -37,6 +38,7 @@ function App() {
           <Route exact path="/" component={HomeScreen} />
           <Route exact path="/product/:id" component={ProductScreen} />
           <Route exact path="/cart" component={CartScreen} />
+          <Route exact path="/payment" component={PaymentScreen} />
           <Route exact path="/signup" component={SignUp} />
           <Route exact path="/signin" component={SignIn} />
         </Switch>

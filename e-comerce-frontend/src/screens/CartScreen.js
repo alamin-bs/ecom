@@ -15,6 +15,7 @@ const CartScreen = () => {
 
   const cart = useSelector((state) => state.cart);
 
+  
   const { loginInfo } = useLogin();
 
   const { cartItems } = cart;
@@ -67,7 +68,13 @@ const CartScreen = () => {
               <p>৳{getCartSubTotal()}</p>
             </div>
             <div>
-              <button>Proceed To Checkout</button>
+              <Link
+                to="/payment"
+                className="btn btn-primary"
+                style={{ textDecoration: 'none' }}
+              >
+                <button>Proceed To Checkout</button>
+              </Link>
             </div>
           </div>
         </div>
