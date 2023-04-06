@@ -20,16 +20,42 @@ import {
 } from '@material-ui/core';
 import { Api } from '../utils/Api';
 import Toast from '../components/Toast';
-
+import {
+  isPossiblePhoneNumber,
+  isValidPhoneNumber,
+  validatePhoneNumberLength,
+} from 'libphonenumber-js';
 const initValues = {
   name: '',
   email: '',
   number: null,
   address: '',
 };
+const nameMsg = 'Name Field can not be empty';
+const emailMsg = 'Please Provide a valid e-mail';
+const adrsMsg = 'Address Field can not be empty';
+const numberMsg = 'Please Provide a valid number';
+const errObj = {
+  name: {
+    error: false,
+    text: '',
+  },
+  email: {
+    error: false,
+    text: '',
+  },
+  number: {
+    error: false,
+    text: '',
+  },
+  address: {
+    error: false,
+    text: '',
+  },
+};
 const PaymentScreen = () => {
   const dispatch = useDispatch();
-  const [error, setError] = useState(false);
+  const [error, setError] = useState(errObj);
   const [value, setValue] = useState(initValues);
   const [open, setOpen] = useState(false);
   const handleClose = () => setOpen(false);
@@ -42,12 +68,40 @@ const PaymentScreen = () => {
         /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
       );
   };
+  const handleValidation = () => {
+    const { name, email, address, number } = value;
+    if (!name)
+      setError((prevState) => ({
+        ...prevState,
+        ['name']: { error: true, text: nameMsg },
+      }));
+    if (!validateEmail(email))
+      setError((prevState) => ({
+        ...prevState,
+        ['email']: { error: true, text: emailMsg },
+      }));
+    if (!number || !isValidPhoneNumber(number, 'BD'))
+      setError((prevState) => ({
+        ...prevState,
+        ['number']: { error: true, text: numberMsg },
+      }));
+    if (!address)
+      setError((prevState) => ({
+        ...prevState,
+        ['address']: { error: true, text: adrsMsg },
+      }));
+  };
   const handlePurchase = async () => {
     const { name, email, address, number } = value;
-    if (!name || !validateEmail(email) || !address || !number) {
-      setError(true);
+
+    handleValidation();
+    if (
+      !name ||
+      !validateEmail(email) ||
+      !isValidPhoneNumber(number) ||
+      !number
+    )
       return;
-    }
     const { cartItems } = cart;
     const data = cartItems.map((item) => ({
       Name: item.name,
@@ -71,7 +125,10 @@ const PaymentScreen = () => {
   };
 
   const handleChange = (name, value) => {
-    setError(false);
+    setError((prevState) => ({
+      ...prevState,
+      [name]: { error: false, text: '' },
+    }));
     setValue((prevState) => ({ ...prevState, [name]: value }));
   };
 
@@ -103,7 +160,8 @@ const PaymentScreen = () => {
               variant={'outlined'}
               style={{ width: '100%', margin: 5 }}
               required={true}
-              error={error}
+              error={error.name.error}
+              helperText={error.name.text}
               value={value.name}
               onChange={(e) => handleChange('name', e.target.value)}
             />
@@ -113,7 +171,8 @@ const PaymentScreen = () => {
               variant={'outlined'}
               style={{ width: '100%', margin: 5 }}
               required={true}
-              error={error}
+              error={error.email.error}
+              helperText={error.email.text}
               value={value.email}
               onChange={(e) => handleChange('email', e.target.value)}
             />
@@ -122,7 +181,8 @@ const PaymentScreen = () => {
               label="Phone Number"
               variant={'outlined'}
               style={{ width: '100%', margin: 5 }}
-              error={error}
+              error={error.number.error}
+              helperText={error.number.text}
               value={value.number}
               onChange={(e) => handleChange('number', e.target.value)}
             />
@@ -131,7 +191,8 @@ const PaymentScreen = () => {
               label="Address"
               variant={'outlined'}
               style={{ width: '100%', margin: 5 }}
-              error={error}
+              error={error.address.error}
+              helperText={error.address.text}
               value={value.address}
               onChange={(e) => handleChange('address', e.target.value)}
             />
